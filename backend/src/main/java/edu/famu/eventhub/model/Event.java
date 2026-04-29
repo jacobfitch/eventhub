@@ -1,5 +1,6 @@
 package edu.famu.eventhub.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 
@@ -25,6 +26,11 @@ public class Event {
 
     @NotBlank
     private String category;
+
+    @ManyToOne
+    @JoinColumn(name = "created_by_id")
+    @JsonIgnore
+    private AppUser createdBy;
 
     public Event() {
     }
@@ -79,5 +85,13 @@ public class Event {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public AppUser getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(AppUser createdBy) {
+        this.createdBy = createdBy;
     }
 }

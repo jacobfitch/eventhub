@@ -1,8 +1,11 @@
 package edu.famu.eventhub.controller;
 
+import edu.famu.eventhub.model.AppUser;
 import edu.famu.eventhub.model.Event;
+import edu.famu.eventhub.repository.AppUserRepository;
 import edu.famu.eventhub.repository.EventRepository;
 import jakarta.validation.Valid;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,9 +16,11 @@ import java.util.List;
 public class EventController {
 
     private final EventRepository eventRepository;
+    private final AppUserRepository appUserRepository;
 
-    public EventController(EventRepository eventRepository) {
+    public EventController(EventRepository eventRepository, AppUserRepository appUserRepository) {
         this.eventRepository = eventRepository;
+        this.appUserRepository = appUserRepository;
     }
 
     @GetMapping
@@ -24,7 +29,14 @@ public class EventController {
     }
 
     @PostMapping
-    public Event createEvent(@Valid @RequestBody Event event) {
+    public Event createEvent(@Valid @RequestBody Event event, Authentication authentication) {
+        String email = authentication.getName();
+
+        AppUser user = appUserRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        event.setCreatedBy(user);
+
         return eventRepository.save(event);
     }
 
